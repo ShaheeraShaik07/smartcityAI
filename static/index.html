@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CityP'AI'Rtner - Smart City Assistant</title>
+  <style>
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; display: flex; height: 100vh; background: #D8C3A58c; }
+    aside { width: 220px; background-color: #4E6041; color: #4E6041; display: flex; flex-direction: column; padding-top: 1rem; }
+    aside h2 { text-align: center; margin-bottom: 1.5rem; color: #d3cfb5; }
+    .nav-item { padding: 0.75rem 1rem; cursor: pointer; color: #fff; transition: background 0.3s; }
+    .nav-item:hover, .nav-item.active { background-color: #d3cfb5; }
+    main { flex: 1; padding: 1.5rem; overflow-y: auto; }
+    .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .kpi-card { background-color: #a39d78; border-radius: 8px; padding: 1rem; margin-right: 1rem; flex: 1; text-align: center; box-shadow: 0 2px 5px #4E6041(0,0,0,0.1); }
+    .kpi-container { display: flex; flex-wrap: wrap; }
+    .kpi-title { color: #555; font-size: 0.9rem; }
+    .kpi-value { font-size: 1.8rem; font-weight: bold; color: #d2deea; margin-top: 0.5rem; }
+    textarea, input, button, select { margin-top: 0.5rem; padding: 0.5rem; width: 100%; border-radius: 5px; border: 1px solid #ccc; }
+    button { background-color: #4E6041; color: #fff; cursor: pointer; border: none; }
+    button:hover { background-color: #4E6041; }
+  </style>
+</head>
+<body>
+
+<aside>
+  <h2>CityP'AI'Rtner</h2>
+  <div class="nav-item active" onclick="showSection('dashboard')">📊 Dashboard</div>
+  <div class="nav-item" onclick="showSection('forecast')">📈 KPI Forecasting</div>
+  <div class="nav-item" onclick="showSection('eco')">🌱 Eco Tips</div>
+  <div class="nav-item" onclick="showSection('chat')">💬 Chat Assistant</div>
+  <div class="nav-item" onclick="showSection('report')">📝 Sustainability Report</div>
+
+  <div style="margin-top:auto; padding: 1rem; font-size: 12px; background-color: #4E6041; border-top: 1px solid #d3cfb5; color: #f9f8ed;">
+  <h4 style="color:#f9f8ed;">About</h4>
+  <p>Developed using <strong>IBM Granite AI</strong>.</p>
+  <p>Built with <strong>FastAPI + Streamlit</strong> (via LocalTunnel).</p>
+  <hr style="border: 0.5px solid #d3cfb5;">
+  <p>© 2025 <strong>Cityp-AI-rtner</strong></p>
+  <p>Powered by <strong>IBM Granite AI</strong><br><em>For informational purposes</em></p>
+</div>
+
+</aside>
+
+
+
+<main>
+  <div class="dashboard-header">
+  <h2>Smart Dashboard</h2>
+  <br>
+  <select id="citySelector" onchange="loadKPI()" style="margin-top: 0.5rem; padding: 0.5rem; width: 370px;">
+    <option value="Pune">Pune</option>
+    <option value="Mumbai">Mumbai</option>
+    <option value="Delhi">Delhi</option>
+    <option value="Chennai">Chennai</option>
+    <option value="Hyderabad">Hyderabad</option>
+    <option value="Bengaluru">Bengaluru</option>
+    <option value="Kolkata">Kolkata</option>
+    <option value="Ahmedabad">Ahmedabad</option>
+  </select>
+<img src="/static/citypartnerailogo.jpg" alt="CityP'AI'Rtner Logo" width="370" height="auto">
+
+  </div>
+
+  <div id="dashboard" class="kpi-container">
+    <div class="kpi-card"><div class="kpi-title">💧 Water Usage</div><div class="kpi-value" id="waterUsage">-</div></div>
+    <div class="kpi-card"><div class="kpi-title">⚡ Energy Consumption</div><div class="kpi-value" id="energyUsage">-</div></div>
+    <div class="kpi-card"><div class="kpi-title">🌫️ Air Quality Index</div><div class="kpi-value" id="aqiIndex">-</div></div>
+  </div>
+
+  <div id="forecast" style="display:none;">
+    <h3>KPI Forecasting</h3>
+    <form onsubmit="submitForecast(event)">
+      <input type="file" id="kpiFile" accept=".csv" required><br><br>
+      <button type="submit">Upload & Forecast</button>
+    </form>
+    <div id="forecastResult" style="margin-top:1rem;"></div>
+ <img src="/static/citypartnerailogo.jpg" alt="CityP'AI'Rtner Logo" width="370" height="auto">
+
+
+  </div>
+
+  <div id="eco" style="display:none;">
+    <h3>Eco-Friendly Tips</h3>
+    <input type="text" id="ecoTopic" placeholder="Enter Topic (e.g., Energy)">
+    <button onclick="getEcoTip()">Get Tip</button>
+    <div id="ecoResult" style="margin-top:1rem;"></div>
+ <img src="/static/citypartnerailogo.jpg" alt="CityP'AI'Rtner Logo" width="370" height="auto">
+  </div>
+
+  <div id="chat" style="display:none;">
+    <h3>Ask Sustainability Queries</h3>
+    <input type="text" id="chatInput" placeholder="Type your question...">
+    <button onclick="sendChat()">Ask</button>
+    <div id="chatResponse" style="margin-top:1rem;"></div>
+ <img src="/static/citypartnerailogo.jpg" alt="CityP'AI'Rtner Logo" width="370" height="auto">
+  </div>
+
+  <div id="report" style="display:none;">
+  <h3>Generate Sustainability Report</h3>
+  <textarea id="reportTopic" placeholder="Enter report topic or details..."></textarea>
+  <button onclick="generateReport()">Generate Report</button>
+  <div id="reportResult" style="margin-top:1rem;"></div>
+  <img src="/static/citypartnerailogo.jpg" alt="CityP'AI'Rtner Logo" width="370" height="auto">
+</div>
+
+
+</main>
+
+<script>
+  const BASE_URL = 'https://your-fastapi-url.loca.lt'; // Replace with actual backend URL
+
+  const kpiData = {
+    "Pune": {"water_usage": 78000, "energy": 10500, "aqi": 40},
+    "Mumbai": {"water_usage": 68000, "energy": 12000, "aqi": 55},
+    "Delhi": {"water_usage": 85000, "energy": 14000, "aqi": 120},
+    "Chennai": {"water_usage": 62000, "energy": 9500, "aqi": 65},
+    "Hyderabad": {"water_usage": 71000, "energy": 11200, "aqi": 50},
+    "Bengaluru": {"water_usage": 69000, "energy": 11500, "aqi": 45},
+    "Kolkata": {"water_usage": 75000, "energy": 13500, "aqi": 85},
+    "Ahmedabad": {"water_usage": 67000, "energy": 9800, "aqi": 60}
+  };
+  const ecoTipsData = {
+  "energy": "Switch to LED lighting to reduce energy consumption by up to 80%.",
+  "solar": "Install rooftop solar panels to generate clean electricity.",
+  "insulation": "Improve home insulation to maintain indoor temperatures and reduce heating needs.",
+  "appliances": "Use energy-efficient appliances with high star ratings to save power.",
+
+  "water": "Collect rainwater for garden use to conserve drinking water.",
+  "greywater": "Reuse greywater from sinks and showers for landscaping irrigation.",
+  "drip irrigation": "Install drip irrigation systems for efficient watering of plants.",
+  "leaks": "Fix leaky faucets and pipes to prevent water wastage.",
+
+  "transport": "Use bicycles or electric vehicles for short-distance commutes.",
+  "public transport": "Choose buses and trains over personal cars to reduce your carbon footprint.",
+  "carpool": "Organize carpools with colleagues or friends to share rides.",
+
+  "waste": "Compost organic kitchen waste to reduce landfill burden.",
+  "recycling": "Separate paper, plastic, metal, and glass for effective recycling.",
+  "e-waste": "Properly dispose of electronic waste at designated collection centers.",
+
+  "plastic": "Carry reusable bags and bottles to reduce single-use plastic waste.",
+  "alternative products": "Choose biodegradable or compostable alternatives to plastic packaging.",
+  "bulk buying": "Buy groceries in bulk to reduce excessive packaging waste."
+};
+
+
+const reportTemplates = {
+  "water conservation": `
+    <b>Title:</b> Smart Water Conservation Strategies<br><br>
+    <b>Overview:</b> Water conservation involves reducing unnecessary water usage through technologies and behavioral changes.<br><br>
+    <b>Key Measures:</b><br>
+    • Smart irrigation systems using soil moisture sensors<br>
+    • Leak detection systems in pipelines<br>
+    • Public awareness campaigns and usage tracking<br><br>
+    <b>Impact:</b><br>
+    These practices help reduce freshwater waste, ensure sustainable supply, and cut costs for municipalities and citizens.
+  `,
+
+  "renewable energy": `
+    <b>Title:</b> Promoting Renewable Energy in Smart Cities<br><br>
+    <b>Overview:</b> Renewable energy sources such as solar, wind, and bioenergy are critical for reducing carbon emissions.<br><br>
+    <b>Key Strategies:</b><br>
+    • Installing solar panels on public buildings<br>
+    • Implementing wind farms on city outskirts<br>
+    • Integrating renewable sources into smart grid systems<br><br>
+    <b>Impact:</b><br>
+    Cleaner energy generation, improved air quality, energy independence, and reduced carbon footprint.
+  `,
+
+  "waste management": `
+    <b>Title:</b> Intelligent Waste Management Solutions<br><br>
+    <b>Overview:</b> Smart waste management leverages IoT and AI for efficient collection, recycling, and disposal.<br><br>
+    <b>Key Components:</b><br>
+    • Smart bins with fill-level sensors<br>
+    • Route optimization for waste collection trucks<br>
+    • Real-time monitoring and citizen feedback apps<br><br>
+    <b>Impact:</b><br>
+    Enhances recycling rates, reduces landfill dependency, lowers operational costs, and improves urban cleanliness.
+  `
+};
+function generateReport() {
+  const prompt = document.getElementById('reportTopic').value.trim().toLowerCase();
+  const report = reportTemplates[prompt] || "No report available for this topic. Try 'water conservation', 'renewable energy', or 'waste management'.";
+  document.getElementById('reportResult').innerHTML = `<h4>Report:</h4><p>${report}</p>`;
+}
+
+
+// CSS additions for logo and right-side image
+const style = document.createElement('style');
+style.innerHTML = `
+   {
+    content: "";
+    display: block;
+    background-image: url('/static/citypartnerailogo.jpg');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    height: 100px;
+    margin-bottom: 1rem;
+  }
+
+  {
+    content: "";
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    background-image: url('/static/citypartnerailogo.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+`;
+document.head.appendChild(style);
+
+const sustainabilityFAQs = {
+  "renewable energy": "Renewable energy sources include solar, wind, hydro, and geothermal.",
+  "solar power": "Solar panels convert sunlight into electricity, helping reduce dependence on fossil fuels.",
+  "wind energy": "Wind turbines harness the power of the wind to generate clean electricity.",
+
+  "air pollution": "Reducing fossil fuel use and increasing green spaces help combat air pollution.",
+  "electric vehicles": "Electric vehicles produce zero tailpipe emissions, reducing urban air pollution.",
+  "public transport": "Using public transport reduces the number of cars on the road, lowering emissions.",
+
+  "water conservation": "Install low-flow fixtures and reuse greywater for gardening.",
+  "rainwater harvesting": "Collect rainwater for household or gardening use to conserve drinking water.",
+  "leak prevention": "Regularly inspect and fix leaks to prevent unnecessary water loss.",
+
+  "urban greenery": "Rooftop gardens and urban parks enhance urban sustainability.",
+  "tree plantation": "Planting native trees improves air quality, biodiversity, and provides shade.",
+
+  "climate change": "Climate change refers to long-term shifts in temperature and weather patterns mainly caused by human activities.",
+  "waste reduction": "Reducing, reusing, and recycling materials minimizes waste sent to landfills."
+};
+
+
+function sendChat() {
+  const prompt = document.getElementById('chatInput').value.toLowerCase();
+  const answer = sustainabilityFAQs[prompt] || "Sorry, I don't have an answer for that. Please try asking about 'renewable energy', 'climate change', or 'waste reduction'.";
+  document.getElementById('chatResponse').innerHTML = `<b>Response:</b> ${answer}`;
+}
+
+
+
+  function showSection(section) {
+    document.querySelectorAll('main > div').forEach(el => el.style.display = 'none');
+    document.getElementById(section).style.display = 'block';
+    document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+    event.target.classList.add('active');
+    if (section === 'dashboard') loadKPI();
+  }
+
+  function loadKPI() {
+    const city = document.getElementById('citySelector').value;
+    const data = kpiData[city] || {water_usage: '-', energy: '-', aqi: '-'};
+    document.getElementById('waterUsage').textContent = data.water_usage;
+    document.getElementById('energyUsage').textContent = data.energy;
+    document.getElementById('aqiIndex').textContent = data.aqi;
+  }
+
+  function submitForecast(e) {
+    e.preventDefault();
+    const fileInput = document.getElementById('kpiFile');
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
+
+    fetch(`${BASE_URL}/forecast`, { method: 'POST', body: formData })
+      .then(res => res.json())
+      .then(data => {
+        let output = '<h4>Forecast Results:</h4><ul>';
+        for (const [index, value] of Object.entries(data.Forecast)) {
+          output += `<li>Row ${index}: ${value}</li>`;
+        }
+        output += '</ul>';
+        document.getElementById('forecastResult').innerHTML = output;
+      })
+      .catch(() => alert("Failed to process the forecast."));
+  }
+ // KPI Forecasting - Separate JS code
+
+function handleKpiForecast() {
+  const fileInput = document.getElementById("kpiFile");
+  const file = fileInput.files[0];
+
+  if (!file) {
+    alert("Please upload a CSV file.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const text = e.target.result;
+    const rows = text.trim().split("\n");
+    const header = rows[0].split(",");
+
+    let forecastData = "<h4>Forecast Preview:</h4><table border='1'><tr>" +
+      header.map(h => `<th>${h}</th>`).join('') + "</tr>";
+
+    for (let i = 1; i < rows.length && i <= 5; i++) {
+      const cols = rows[i].split(",");
+      forecastData += "<tr>" + cols.map(c => `<td>${c}</td>`).join('') + "</tr>";
+    }
+    forecastData += "</table>";
+
+    document.getElementById("forecastResult").innerHTML = forecastData;
+  };
+
+  reader.readAsText(file);
+}
+
+// Add this HTML in KPI section:
+// <div id="forecastResult"></div>
+// <button onclick="handleKpiForecast()">Submit for Forecasting</button>
+
+  
+  function getEcoTip() {
+  const topic = document.getElementById('ecoTopic').value.toLowerCase();
+  const tip = ecoTipsData[topic] || "No tip found for this topic. Try 'energy', 'water', 'transport', 'waste', or 'plastic'.";
+  document.getElementById('ecoResult').innerHTML = `<b>Eco Tip:</b> ${tip}`;
+}
+
+
+  function sendChat() {
+  const prompt = document.getElementById('chatInput').value.toLowerCase();
+  const answer = sustainabilityFAQs[prompt] || "Sorry, I don't have an answer for that. Please try asking about 'renewable energy' or 'air pollution'.";
+  document.getElementById('chatResponse').innerHTML = `<b>Response:</b> ${answer}`;
+}
+ function generateReport() {
+  const prompt = document.getElementById('reportTopic').value.toLowerCase();
+  const report = reportTemplates[prompt] || "No report available for this topic. Try 'water conservation' or 'waste management'.";
+  document.getElementById('reportResult').innerHTML = `<h4>Report:</h4><p>${report}</p>`;
+}
+
+  window.onload = loadKPI;
+</script>
+
+</body>
+</html>
